@@ -1,0 +1,21 @@
+{{define "content"}}
+  <div id="login-box">
+    <form id="login-form">
+      <div>
+        <label>UserName</lable>
+        <input type="email" name="username" required>
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" name="password" required>
+      </div>
+      <div>
+        <input type="submit" value="Register" name="register">
+        <input type="submit" value="Log In" name="login">
+      </div>
+    </form>
+    <div id="error">
+      {{.Error}}
+    </div>
+  </div>
+{{end}}

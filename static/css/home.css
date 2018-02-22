@@ -1,0 +1,5 @@
+/*body*/
+#search-results tr:hover {
+  background-color: lightgrey;
+  cursor: pointer;
+}

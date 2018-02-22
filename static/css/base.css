@@ -1,0 +1,26 @@
+#container {
+  display: grid;
+  grid-template-columns: 30px auto 30px;
+}
+
+#container > * {
+  grid-column: 2;
+  min-width: 0;
+}
+
+html, body, #container, #container-flex {
+  height: 100%;
+}
+
+#container-flex {
+  display: flex;
+  flex-direction: column;
+}
+
+#articleId {
+  flex: 1 0 auto;
+}
+
+#footerId {
+  flex-shrink: 0;
+}

@@ -1,0 +1,21 @@
+/*login*/
+#login-box{
+  height: calc(100vh - 200px - 3em - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#login-form div{
+  text-align: center;
+}
+
+#login-form input{
+  margin: .5em 1em;
+}
+
+#error {
+  text-align: center;
+  color: red;
+  margin-top: 1em;
+}

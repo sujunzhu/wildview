@@ -1,0 +1,7 @@
+/*aboutUs*/
+#aboutus {
+  height: calc(100vh - 200px - 3em - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

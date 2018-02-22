@@ -1,0 +1,33 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>WildView</title>
+    <script src="https://fb.me/react-15.1.0.js"></script>
+    <script src="https://fb.me/react-dom-15.1.0.js"></script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/about.css">
+    <link rel="stylesheet" href="/css/contact.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/login.css">
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-flex">
+        <div id="headerId">
+          {{template "headerHTML" .User}}
+        </div>
+        <div id="articleId">
+          {{template "content" .Content}}
+        </div>
+        <div id="footerId">
+          {{template "footerHTML"}}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+{{end}}
