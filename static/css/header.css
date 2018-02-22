@@ -1,31 +1,53 @@
 /*header*/
 #header-box{
-  display: flex;
-  border-style: solid;
-}
-
-#header-box-intro{
-  flex:4;
-}
-
-#header-box-user{
-  flex:1;
+  text-align: center;
 }
 
 #nav-box {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 2em;
+
 }
 
 .nav-item {
   font-size: 1.75em;
   text-align: center;
-  background-color: lightgrey;
+  border-left-style: solid;
+  flex-basis: 20%;
+}
+
+.nav-item a:link {
+  text-decoration: none;
   color:black;
 }
 
-.nav-item:hover {
-  background-color: grey;
-  color:white;
+.nav-item a:visited {
+  text-decoration: none;
+}
+
+.nav-item a:hover{
+  text-decoration: none;
+  color:red;
+}
+
+.nav-item a:active{
+  text-decoration: none;
+}
+
+@media (min-width: 900px){
+  #nav-box {
+    justify-content: center;
+    display: flex;
+  }
+
+  #header-box{
+    display: flex;
+    justify-content: center;
+  }
+
+  #header-box-intro{
+    flex-basis: 50%;
+  }
+
+  #header-box-user{
+    flex-basis: 30%;
+  }
 }

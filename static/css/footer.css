@@ -1,14 +1,29 @@
 /*footer*/
 #footer-box {
-  display: grid;
-  grid-template-rows: 200px;
-  grid-template-columns: repeat(auto-fit, minmax(100px,1fr));
+  height: 200px;
   text-align: center;
+}
+
+.footer-link a:link {
+  text-decoration: none;
+  color:black;
+}
+
+.footer-link a:visited {
+  text-decoration: none;
+}
+
+.footer-link a:hover{
+  text-decoration: none;
+  color:red;
+}
+.footer-link a:active{
+  text-decoration: none;
 }
 
 .footer-small-box{
   text-align: center;
-  grid-column: 1fr;
+  flex-basis: 20%;
 }
 
 .footer-small-box-itembox{
@@ -22,5 +37,20 @@
 }
 
 #subscribe{
-  grid-column: span 2;
+  flex-basis: 20%;
+}
+
+@media (min-width:900px) {
+  #footer-box {
+    display: flex;
+    justify-content: center;
+  }
+
+  #subscribe{
+    flex-basis: 16%;
+  }
+
+  #subscribe{
+    flex-basis: 32%;
+  }
 }
