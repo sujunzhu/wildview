@@ -52,12 +52,12 @@ func main() {
 	mux.HandleFunc("/", HomePageHandler).Methods("GET")
 	mux.HandleFunc("/login/", LoginPageHandler).Methods("GET")
 	mux.HandleFunc("/logout/", LogoutHandler).Methods("GET")
-	mux.HandleFunc("/product/", ProductsHandler).Methods("GET")
+	mux.HandleFunc("/search/", SearchPageHandler).Methods("GET")
 	mux.HandleFunc("/about/", AboutHandler).Methods("GET")
 	mux.HandleFunc("/contact/", ContactHandler).Methods("GET")
 	mux.HandleFunc("/list/", ListHandler).Methods("PUT")
 
-	mux.HandleFunc("/product/", SearchPageHandler).Methods("POST")
+	mux.HandleFunc("/search/", SearchHandler).Methods("POST")
 	//mux.HandleFunc("/order/", OrderHandler).Methods("POST")
 
 	// static file
@@ -211,8 +211,22 @@ type ProductPage struct {
 	Content  ContentReturn
 }
 
-func ProductsHandler(w http.ResponseWriter, r *http.Request) {
-	HomePageHandler(w, r)
+func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
+	p := Page{Favourites: []Favourite{}, User: getStringFromSession(r, "User"), Content: ContentReturn{}}
+	if _, err := dbmap.Select(&p.Favourites, "select * from favourites"); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tmpl, err := template.New("").ParseFiles("templates/header.html",
+		"templates/footer.html",
+		"templates/search.html",
+		"templates/base.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func AboutHandler(w http.ResponseWriter, r *http.Request) {
@@ -272,7 +286,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	results := []Product{}
 	rows, err := dbmap.Query("select * from products WHERE Name LIKE '%" + r.FormValue("search") + "%'")
 	checkErr(err, "Query db for products fails!")
@@ -286,10 +300,6 @@ func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
-
-/*func OrderHandler(w http.ResponseWriter, r *http.Request) {
-
-}*/
 
 // Middleware Functions begin here
 func verifyUser(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {

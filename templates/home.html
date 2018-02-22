@@ -1,50 +1,7 @@
 {{define "content"}}
-<div id="product-content">
-  <div id="search-box">
-    <form id="search-form" onsubmit="return false">
-      <input name="search" id="search-text-field"/>
-      <input type="submit" value="Search" onclick="submitSearch()" />
-    </form>
+  <div id="home">
+    <div>
+      This is the home page. On developing!
+    </div>
   </div>
-  <!-- begin to display search results-->
-  <div id="search-results">
-  </div>
-</div>
-<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-      submitSearch();
-  });
-
-  function submitSearch() {
-    $.ajax({
-      url: "/product/",
-      method: "POST",
-      data: $("#search-form").serialize(),
-      success: function(rawData) {
-        var parsed = JSON.parse(rawData);
-        if (!parsed) return;
-
-        var searchResults = $("#search-results");
-        searchResults.empty();
-        parsed.forEach(function(result) {
-          var row = $("<div class='search-result-item'><img src="+result.Image+"><br>Name: " + result.Name + "<br>Brand: "+result.Brand+"<br>Price: $" + result.Price + "</div>");
-          searchResults.append(row);
-          row.on("click", function() {
-            $.ajax({
-              url: "/product/",
-              method: "PUT",
-              success: function(data){
-                var product = JSON.parse(data);
-                if (!product) return;
-              }
-            })
-          })
-        });
-      }
-    });
-
-    return false;
-  }
-</script>
 {{end}}
