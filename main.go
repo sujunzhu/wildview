@@ -112,7 +112,7 @@ func initDb() {
 
 func initDBValues() {
 	products := []Product{
-		Product{0, "Dinasour Kid T-short Grey", "/img/0.jpg", 23.99, "WarmTip"},
+		Product{0, "Dinasour Kid T-shirt Grey", "/img/0.jpg", 23.99, "WarmTip"},
 		Product{0, "39-Piece Tool Set", "/img/1.jpg", 59.99, "Tungsten"},
 	}
 	for i := 0; i < len(products); i++ {
@@ -274,7 +274,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
 	results := []Product{}
-	rows, err := dbmap.Query("select Id,Name,Image,Price,Brand from products")
+	rows, err := dbmap.Query("select * from products WHERE Name LIKE '%" + r.FormValue("search") + "%'")
 	checkErr(err, "Query db for products fails!")
 	for rows.Next() {
 		var prod Product

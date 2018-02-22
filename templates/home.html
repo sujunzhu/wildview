@@ -28,7 +28,7 @@
         var searchResults = $("#search-results");
         searchResults.empty();
         parsed.forEach(function(result) {
-          var row = $("<div class='search-result-item'><img src="+result.Image+"><br>Name: " + result.Name + "<br>Price: $" + result.Price + "</div>");
+          var row = $("<div class='search-result-item'><img src="+result.Image+"><br>Name: " + result.Name + "<br>Brand: "+result.Brand+"<br>Price: $" + result.Price + "</div>");
           searchResults.append(row);
           row.on("click", function() {
             $.ajax({
