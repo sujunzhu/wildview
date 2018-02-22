@@ -1,29 +1,21 @@
 /*header*/
 #header-box{
-  display: grid;
-  grid-template-columns: 5fr 2fr;
-  grid-template-rows: 1em;
-  grid-gap: 3px;
+  display: flex;
+  border-style: solid;
 }
 
 #header-box-intro{
-  font-size: 1em;
-  text-align: center;
-  float: left;
+  flex:4;
 }
 
 #header-box-user{
-  font-size: 1em;
-  text-align: left;
-  float: left;
+  flex:1;
 }
 
 #nav-box {
-  border-style: dotted;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: 2em;
-  grid-gap: 3px;
 }
 
 .nav-item {
