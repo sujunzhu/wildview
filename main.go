@@ -40,6 +40,11 @@ type Product struct {
 	Brand string  `db:Brand`
 }
 
+type Subscriber struct {
+	Id    int64  `db:Id`
+	Email string `db:Email`
+}
+
 var db *sql.DB
 var dbmap *gorp.DbMap
 
@@ -58,6 +63,8 @@ func main() {
 	mux.HandleFunc("/list/", ListHandler).Methods("PUT")
 
 	mux.HandleFunc("/search/", SearchHandler).Methods("POST")
+	mux.HandleFunc("/product/", ProductHandler).Methods("POST")
+	mux.HandleFunc("/subscribe/", SubscribeHandler).Methods("POST")
 	//mux.HandleFunc("/order/", OrderHandler).Methods("POST")
 
 	// static file
@@ -104,6 +111,7 @@ func initDb() {
 	dbmap.AddTableWithName(Favourite{}, "favourites").SetKeys(true, "Id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(false, "username")
 	dbmap.AddTableWithName(Product{}, "products").SetKeys(true, "Id")
+	dbmap.AddTableWithName(Subscriber{}, "subscribers").SetKeys(true, "Id")
 	err = dbmap.CreateTablesIfNotExists()
 	checkErr(err, "Create tables failed")
 
@@ -295,6 +303,44 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&prod.Id, &prod.Name, &prod.Image, &prod.Price, &prod.Brand)
 		results = append(results, prod)
 	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(results); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func ProductHandler(w http.ResponseWriter, r *http.Request) {
+	results := []Product{}
+	rows, err := dbmap.Query("select * from products WHERE Id LIKE " + r.FormValue("Id"))
+	checkErr(err, "Query db for products fails!")
+	for rows.Next() {
+		var prod Product
+		rows.Scan(&prod.Id, &prod.Name, &prod.Image, &prod.Price, &prod.Brand)
+		results = append(results, prod)
+	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(results); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+//PUT
+func SubscribeHandler(w http.ResponseWriter, r *http.Request) {
+	results := []ContentReturn{}
+	rows, err := dbmap.Query("select * from subscribers WHERE Email = '" + r.FormValue("emailsub") + "'")
+	checkErr(err, "Query db for products fails!")
+	for rows.Next() {
+		results = append(results, ContentReturn{Error: "Failure"})
+		encoder := json.NewEncoder(w)
+		if err := encoder.Encode(results); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	subs := Subscriber{Id: 0, Email: r.FormValue("emailsub")}
+	err = dbmap.Insert(&subs)
+	checkErr(err, "Insertion of initial products fails!")
+	results = append(results, ContentReturn{Error: "success"})
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(results); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

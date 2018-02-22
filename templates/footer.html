@@ -26,12 +26,25 @@
       <p>Sign Up For Emails Today!
       <form id="email-subscribe">
         <input type="email" name="emailsub" required>
-        <input type="submit" value="Go">
+        <input type="submit" value="Go" onclick="javascript:subscribe()">
       </form>
       <p>&copy; 2018 Wildview Inc</p>
     </div>
   </div>
-
+  <script type="text/javascript">
+    function subscribe(){
+      $.ajax({
+        url: "/subscribe/",
+        method: "POST",
+        data: $("#email-subscribe").serialize(),
+        success:function(backData){
+          var parsed = JSON.parse(backData);
+          if(!parsed) return;
+          alert(parsed[0].Error);
+        }
+      });
+    }
+  </script>
 <!--
   <div id="react-container"></div>
   <script src="/rjs/base.js"></script>

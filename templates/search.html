@@ -15,7 +15,6 @@
   $(document).ready(function(){
       submitSearch();
   });
-
   function submitSearch() {
     $.ajax({
       url: "/search/",
@@ -24,27 +23,36 @@
       success: function(rawData) {
         var parsed = JSON.parse(rawData);
         if (!parsed) return;
-
         var searchResults = $("#search-results");
         searchResults.empty();
         parsed.forEach(function(result) {
-          var row = $("<div class='search-result-item'><img src="+result.Image+"><br>Name: " + result.Name + "<br>Brand: "+result.Brand+"<br>Price: $" + result.Price + "</div>");
-          searchResults.append(row);
-          row.on("click", function() {
-            $.ajax({
-              url: "/search/",
-              method: "PUT",
-              success: function(data){
-                var product = JSON.parse(data);
-                if (!product) return;
-              }
-            })
-          })
+          var row = $("<div class='search-result-item'><a href='javascript:seeDetail("+result.Id+")'><img src="+result.Image+" class='small-img'></a><br>Name: " + result.Name + "<br>Brand: "+result.Brand+"<br>Price: $" + result.Price + "</div>");
+          searchResults.append(row)
         });
       }
     });
-
     return false;
+  }
+  function seeDetail(Id){
+    $.ajax({
+      url: "/product/",
+      method: "POST",
+      data:{
+        'Id':Id,
+      },
+      success: function(prodData) {
+          var parsed = JSON.parse(prodData);
+          if(!parsed) return;
+          var searchResults = $("#search-results");
+          searchResults.empty();
+          var result = parsed[0];
+          searchResults.append("<div class='search-result-item'><img src=" + result.Image +
+                                           " class='large-img'><br>Name: " + result.Name +
+                                           "<br>Brand: " + result.Brand +
+                                           "<br>Price: $" + result.Price +
+                                           "<br><button type='button' onclick='javascript:submitSearch()'>Back</button><button type='button'>Order</button></div>")
+      }
+    });
   }
 </script>
 {{end}}
