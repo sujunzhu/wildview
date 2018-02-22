@@ -32,6 +32,14 @@ type Favourite struct {
 	Name string `db:Name`
 }
 
+type Product struct {
+	Id    int64   `db:Id`
+	Name  string  `db:Name`
+	Image string  `db:Image`
+	Price float64 `db:Price`
+	Brand string  `db:Brand`
+}
+
 var db *sql.DB
 var dbmap *gorp.DbMap
 
@@ -95,8 +103,26 @@ func initDb() {
 	dbmap = &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{"InnoDB", "UTF8"}}
 	dbmap.AddTableWithName(Favourite{}, "favourites").SetKeys(true, "Id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(false, "username")
+	dbmap.AddTableWithName(Product{}, "products").SetKeys(true, "Id")
 	err = dbmap.CreateTablesIfNotExists()
 	checkErr(err, "Create tables failed")
+
+	initDBValues()
+}
+
+func initDBValues() {
+	products := []Product{
+		Product{0, "Dinasour Kid T-short Grey", "/img/0.jpg", 23.99, "WarmTip"},
+		Product{0, "39-Piece Tool Set", "/img/1.jpg", 59.99, "Tungsten"},
+	}
+	for i := 0; i < len(products); i++ {
+		var r = []Product{}
+		if _, _ = dbmap.Select(&r, "SELECT Id FROM products WHERE Name=?", products[i].Name); len(r) == 0 {
+			//log.Fatalln(len(r))
+			err := dbmap.Insert(&products[i])
+			checkErr(err, "Insertion of initial products fails!")
+		}
+	}
 }
 
 type ContentReturn struct {
@@ -179,22 +205,14 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+type ProductPage struct {
+	Products []Product
+	User     string
+	Content  ContentReturn
+}
+
 func ProductsHandler(w http.ResponseWriter, r *http.Request) {
-	p := Page{Favourites: []Favourite{}, User: getStringFromSession(r, "User"), Content: ContentReturn{}}
-	if _, err := dbmap.Select(&p.Favourites, "select * from favourites"); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/home.html",
-		"templates/base.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	HomePageHandler(w, r)
 }
 
 func AboutHandler(w http.ResponseWriter, r *http.Request) {
@@ -255,9 +273,13 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
-	results := []SearchResult{
-		SearchResult{"Hello", "3.5"},
-		SearchResult{"gg", "4.5"},
+	results := []Product{}
+	rows, err := dbmap.Query("select Id,Name,Image,Price,Brand from products")
+	checkErr(err, "Query db for products fails!")
+	for rows.Next() {
+		var prod Product
+		rows.Scan(&prod.Id, &prod.Name, &prod.Image, &prod.Price, &prod.Brand)
+		results = append(results, prod)
 	}
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(results); err != nil {
