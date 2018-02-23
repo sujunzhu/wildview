@@ -1,21 +1,22 @@
 /*login*/
 #login-box{
-  height: calc(100vh - 200px - 3em - 100px);
+  height: calc(100vh - 200px - 3em - 200px);
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 #login-form div{
-  text-align: center;
+
 }
 
 #login-form input{
-  margin: .5em 1em;
+  text-align: center;
 }
 
-#error {
-  text-align: center;
-  color: red;
-  margin-top: 1em;
+#login-buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
 }

@@ -2,8 +2,8 @@
 <div id="product-content">
   <div id="search-box">
     <form id="search-form" onsubmit="return false">
-      <input name="search" id="search-text-field"/>
-      <input type="submit" value="Search" onclick="submitSearch()" />
+      <input name="search" class="form-control" id="search-text-field"/>
+      <input type="submit" value="Search" onclick="submitSearch()" class="btn btn-default"/>
     </form>
   </div>
   <!-- begin to display search results-->
@@ -50,7 +50,7 @@
                                            " class='large-img'><br>Name: " + result.Name +
                                            "<br>Brand: " + result.Brand +
                                            "<br>Price: $" + result.Price +
-                                           "<br><button type='button' onclick='javascript:submitSearch()'>Back</button><button type='button'>Order</button></div>")
+                                           "<br><button type='button' onclick='javascript:submitSearch()' class='btn btn-default'>Back</button> <button type='button' class='btn btn-default disabled'>Order</button></div>")
       }
     });
   }

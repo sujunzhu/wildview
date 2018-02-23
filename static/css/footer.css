@@ -46,11 +46,20 @@
     justify-content: center;
   }
 
-  #subscribe{
+  .footer-small-box{
     flex-basis: 16%;
   }
 
   #subscribe{
     flex-basis: 32%;
+  }
+
+  #email-subscribe {
+    display: flex;
+    justify-content: center;
+  }
+
+  #email-subscribe-textfield{
+    max-width: 300px;
   }
 }

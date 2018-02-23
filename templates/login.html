@@ -2,20 +2,25 @@
   <div id="login-box">
     <form id="login-form">
       <div>
-        <label>UserName</lable>
-        <input type="email" name="username" required>
+        <label>UserName: </lable>
+        <input type="email" name="username" class="form-control" required>
       </div>
       <div>
-        <label>Password</label>
-        <input type="password" name="password" required>
+        <label>Password: </label>
+        <input type="password" name="password" class="form-control" required>
       </div>
-      <div>
-        <input type="submit" value="Register" name="register">
-        <input type="submit" value="Log In" name="login">
-      </div>
-      <div id="error">
-        {{.Error}}
+      <div id="login-buttons">
+        <input type="submit" value="Log In" name="login" class="btn btn-default">
+        <input type="submit" value="Register" name="register" class="btn btn-default">
       </div>
     </form>
+    {{if .Error}}
+    <div>
+      <br>
+    </div>
+    <div id="error" class="alert alert-danger">
+      <strong>Error!</strong> {{.Error}}
+    </div>
+    {{end}}
   </div>
 {{end}}

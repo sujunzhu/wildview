@@ -55,6 +55,7 @@ func main() {
 
 	// router setting
 	mux.HandleFunc("/", HomePageHandler).Methods("GET")
+	mux.HandleFunc("/home/", HomePageHandler).Methods("GET")
 	mux.HandleFunc("/login/", LoginPageHandler).Methods("GET")
 	mux.HandleFunc("/logout/", LogoutHandler).Methods("GET")
 	mux.HandleFunc("/search/", SearchPageHandler).Methods("GET")

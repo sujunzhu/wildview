@@ -4,16 +4,17 @@
   flex-direction: column;
 }
 
-#search-box{
-  text-align: center;
+#search-form{
+  display: flex;
+  justify-content: center;
 }
 
 #search-text-field{
-  width: 40%;
+  flex-basis: 60%;
 }
 
 #search-results{
-  min-height: calc(100vh - 200px - 3em - 100px);
+  min-height: calc(100vh - 200px - 3em - 200px);
   margin-top:30px;
   justify-content: center;
   display: flex;
