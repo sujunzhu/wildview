@@ -36,3 +36,7 @@
   width: 500px;
   height: 500px;
 }
+
+.small-img:hover{
+  transform: translate(0,-10px);
+}

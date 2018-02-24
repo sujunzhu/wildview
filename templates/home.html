@@ -1,7 +1,80 @@
 {{define "content"}}
   <div id="home">
-    <div>
-      This is the home page. On developing!
+    <div id="slider1">
+      <div id="arrow-left" class="arrow"></div>
+      <div id="img-slider">
+        <div class="slide slide1">
+          <div class="slide-content">
+            <span>Fashion</span>
+          </div>
+        </div>
+        <div class="slide slide2">
+          <div class="slide-content">
+            <span>Passion</span>
+          </div>
+        </div>
+        <div class="slide slide3">
+          <div class="slide-content">
+            <span>Determination</span>
+          </div>
+        </div>
+      </div>
+      <div id="arrow-right" class="arrow"></div>
     </div>
   </div>
+  <script>
+    let sliderImages = document.querySelectorAll('.slide'),
+        arrowLeft = document.querySelector('#arrow-left'),
+        arrowRight = document.querySelector('#arrow-right'),
+        current = 0;
+
+    // clear all images
+    function reset(){
+      for(let i = 0;i < sliderImages.length; i++){
+        sliderImages[i].style.display = 'none';
+      }
+    }
+
+    function startSlide(){
+      reset();
+      sliderImages[0].style.display = 'block';
+    }
+
+    // Show prev
+    function slideLeft(){
+      reset();
+      if(current === 0){
+        current = sliderImages.length;
+      }
+      sliderImages[current - 1].style.display = 'block';
+      current--;
+    }
+
+    // Show Next
+    function slideRight(){
+      reset();
+      if(current === sliderImages.length - 1){
+        current = -1;
+      }
+      sliderImages[current + 1].style.display = 'block';
+      current++;
+    }
+
+    function autoSlide(){
+      setTimeout(autoSlide,5000);
+      slideRight();
+    }
+
+    // left arrow click
+    arrowLeft.addEventListener('click', function(){
+      slideLeft();
+    })
+
+    arrowRight.addEventListener('click', function(){
+      slideRight();
+    })
+
+    startSlide();
+    setTimeout(autoSlide,5000);
+  </script>
 {{end}}
