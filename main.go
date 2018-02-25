@@ -17,6 +17,11 @@ import (
 	"gopkg.in/gorp.v2"
 )
 
+type Role struct {
+	Username string `db:"username"`
+	Role     byte   `db:"role"` // 0: admistrator, 1: subscriber, 2： visitor
+}
+
 type User struct {
 	Username string `db:"username"`
 	Secret   []byte `db:"secret"`
@@ -61,6 +66,7 @@ func main() {
 	mux.HandleFunc("/search/", SearchPageHandler).Methods("GET")
 	mux.HandleFunc("/about/", AboutHandler).Methods("GET")
 	mux.HandleFunc("/contact/", ContactHandler).Methods("GET")
+	mux.HandleFunc("/manage/", ManageHandler).Methods("GET")
 	mux.HandleFunc("/list/", ListHandler).Methods("PUT")
 
 	mux.HandleFunc("/search/", SearchHandler).Methods("POST")
@@ -111,6 +117,7 @@ func initDb() {
 	dbmap = &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{"InnoDB", "UTF8"}}
 	dbmap.AddTableWithName(Favourite{}, "favourites").SetKeys(true, "Id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(false, "username")
+	dbmap.AddTableWithName(Role{}, "roles").SetKeys(false, "username")
 	dbmap.AddTableWithName(Product{}, "products").SetKeys(true, "Id")
 	dbmap.AddTableWithName(Subscriber{}, "subscribers").SetKeys(true, "Id")
 	err = dbmap.CreateTablesIfNotExists()
@@ -127,9 +134,25 @@ func initDBValues() {
 	for i := 0; i < len(products); i++ {
 		var r = []Product{}
 		if _, _ = dbmap.Select(&r, "SELECT Id FROM products WHERE Name=?", products[i].Name); len(r) == 0 {
-			//log.Fatalln(len(r))
 			err := dbmap.Insert(&products[i])
 			checkErr(err, "Insertion of initial products fails!")
+		}
+	}
+	roles := []Role{
+		Role{"sujunzhu@usc.edu", 0},
+	}
+	for i := 0; i < len(roles); i++ {
+		var t = []Role{}
+		var r = []Role{}
+		if _, _ = dbmap.Select(&t, "SELECT username FROM roles WHERE username=?", roles[i].Username); len(t) == 0 {
+			secret, _ := bcrypt.GenerateFromPassword([]byte("iloveyou"), bcrypt.DefaultCost)
+			user := User{roles[i].Username, secret}
+			err := dbmap.Insert(&user)
+			checkErr(err, "Insertion of initial role fails!")
+			if _, _ = dbmap.Select(&r, "SELECT username FROM roles WHERE username=?", roles[i].Username); len(r) == 0 {
+				err := dbmap.Insert(&roles[i])
+				checkErr(err, "Insertion of initial role fails!")
+			}
 		}
 	}
 }
@@ -151,12 +174,12 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/home.html",
-		"templates/base.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/home.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/about.html",
+			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -197,12 +220,12 @@ func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/login.html",
-		"templates/base.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/login.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/login.html",
+			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -226,12 +249,12 @@ func SearchPageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/search.html",
-		"templates/base.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/search.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/search.html",
+			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -244,12 +267,12 @@ func AboutHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/about.html",
-		"templates/base.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/about.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/about.html",
+			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -262,12 +285,34 @@ func ContactHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tmpl, err := template.New("").ParseFiles("templates/header.html",
-		"templates/footer.html",
-		"templates/contact.html",
-		"templates/base.html")
-	if err != nil {
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/contact.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/contact.html",
+			"templates/base.html")
+	}
+	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func ManageHandler(w http.ResponseWriter, r *http.Request) {
+	if !VerifyAdmin(w, r) {
+		http.Error(w, "You are in big trouble!", http.StatusInternalServerError)
+		return
+	}
+	p := Page{Favourites: []Favourite{}, User: getStringFromSession(r, "User"), Content: ContentReturn{}}
+	if _, err := dbmap.Select(&p.Favourites, "select * from favourites"); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/manage.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/manage.html",
+			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -364,4 +409,26 @@ func verifyUser(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	}
 	next(w, r)
 	return
+}
+
+func VerifyAdmin(w http.ResponseWriter, r *http.Request) bool {
+	if username := getStringFromSession(r, "User"); username != "" {
+		if _, err := dbmap.Get(User{}, username); err == nil {
+			if role, err := dbmap.Get(Role{}, username); err == nil && role != nil && role.(*Role).Role == 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func VerifyAdminResponse(w http.ResponseWriter, r *http.Request, pageName string) *template.Template {
+	if VerifyAdmin(w, r) {
+		tmpl, _ := template.New("").ParseFiles("templates/header_admin.html",
+			"templates/footer.html",
+			pageName,
+			"templates/base.html")
+		return tmpl
+	}
+	return nil
 }

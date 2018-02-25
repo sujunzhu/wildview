@@ -1,7 +1,37 @@
 /*contactUs*/
 #contactus {
   height: calc(100vh - 200px - 3em - 200px);
-  display: flex;
-  justify-content: center;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-around;
   align-items: center;
+  text-align: center;
+}
+
+@media (min-width:800px) {
+  #contactus{
+    flex-direction: row;
+  }
+
+  #contactus-info{
+    flex:1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #contactus-form-info{
+    flex:1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #contactus-form{
+    width: 400px;
+  }
+
+  #contactus-form label{
+    text-align: left;
+  }
 }
