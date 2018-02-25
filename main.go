@@ -178,7 +178,7 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	if tmpl = VerifyAdminResponse(w, r, "templates/home.html"); tmpl == nil {
 		tmpl, _ = template.New("").ParseFiles("templates/header.html",
 			"templates/footer.html",
-			"templates/about.html",
+			"templates/home.html",
 			"templates/base.html")
 	}
 	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
