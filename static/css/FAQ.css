@@ -1,0 +1,16 @@
+/*aboutUs*/
+#FAQ {
+  min-height: calc(100vh - 200px - 3em - 200px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#FAQ-title{
+  flex: 2;
+}
+
+.FAQ-item{
+  flex: 2;
+}

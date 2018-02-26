@@ -3,25 +3,34 @@
   height: calc(100vh - 200px - 3em - 200px);
   display:flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content:center;
   align-items: center;
-  text-align: center;
+}
+
+#submit-button-div{
+  display: flex;
+  justify-content: center;
+  align-items:center;
+}
+
+#contactus-submit-button{
+    flex: 1;
+}
+
+#contactus-form textarea{
+  resize: none;
 }
 
 @media (min-width:800px) {
-  #contactus{
-    flex-direction: row;
-  }
-
   #contactus-info{
-    flex:1;
     display: flex;
+    flex:1;
     justify-content: center;
     align-items: center;
   }
 
   #contactus-form-info{
-    flex:1;
+    max-width: 33%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -29,6 +38,10 @@
 
   #contactus-form{
     width: 400px;
+  }
+
+  #contactus-form div{
+    width: 100%;
   }
 
   #contactus-form label{

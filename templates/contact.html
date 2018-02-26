@@ -2,32 +2,32 @@
   <div id="contactus">
     <div id="contactus-info">
       <div>
-        <p><label>Contact us via Phone:</label>213820xxxx</p>
-        <br>
-        <br>
-        <p><label>Contact email:</label>wildviewinc@gmail.com</p>
+        <p><label>Contact us via Phone:</label> 213820xxxx</p>
+        <p><label>Contact email:</label> wildviewinc@gmail.com</p>
       </div>
     </div>
     <div id="contactus-form-info">
-      <form id="contactus-form">
+      <form id="contactus-form" name="contactus-form">
         <div>
           <label>Name:</label>
-          <input type="text" class="form-control" required>
+          <input type="text" name="name" id="contactus-form-name" class="form-control" required>
         </div>
         <div>
           <label>Email:</label>
-          <input type="email" class="form-control" required>
+          <input type="email" name="email" id="contactus-form-email" class="form-control" required>
         </div>
         <div>
           <label>Phone #:</label>
-          <input type="number" class="form-control">
+          <input type="number" name="phone" id="contactus-form-phone" class="form-control">
         </div>
         <div>
           <label>Infomation:</label>
-          <textarea class="form-control"></textarea>
+          <textarea class="form-control" name="content" id="contactus-textarea"></textarea>
         </div>
         <br>
-        <input type="button" value="submit" class="btn btn-default">
+        <div id="submit-button-div">
+          <input type="button" id="contactus-submit-button" value="submit" class="btn btn-default" onclick="javascript:submitContactInfo()">
+        </div>
       </form>
       {{if .Error}}
       <div>
@@ -39,4 +39,35 @@
       {{end}}
     </div>
   </div>
+  <script>
+    function verify(){
+      if($('form[name="contactus-form"] input[name="name"]').val()==="" ||
+          $('form[name="contactus-form"] input[name="email"]').val()==="" ||
+          $('form[name="contactus-form"] input[name="content"]').val()===""){
+            return false;
+          }
+      return true;
+    }
+    function submitContactInfo(){
+      if(!verify()){
+        alert("Not a valid input!");
+        return;
+      }
+      $.ajax({
+        url:"/contact/",
+        method:"POST",
+        data:{
+          name:$('form[name="contactus-form"] input[name="name"]').val(),
+          email:$('form[name="contactus-form"] input[name="email"]').val(),
+          phone:$('form[name="contactus-form"] input[name="phone"]').val(),
+          content:$('form[name="contactus-form"] input[name="content"]').val()
+        },
+        success:function parse(data){
+          var parsed = JSON.parse(data);
+          if(!parsed) return;
+          alert(parsed[0].Error);
+        }
+      })
+    }
+  </script>
 {{end}}

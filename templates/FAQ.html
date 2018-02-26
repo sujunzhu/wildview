@@ -1,0 +1,25 @@
+{{define "content"}}
+  <div id="FAQ">
+    <div id="FAQ-title">
+      Here are some FAQs:
+    </div>
+  </div>
+  <script>
+    function FetchFAQ(){
+      $.ajax({
+        url:"/FAQ/",
+        method:"POST",
+        success:function parse(data){
+          var parsed = JSON.parse(data);
+          if(!parsed) return;
+          var index = 1;
+          parsed.forEach(function(result){
+            $("#FAQ").append("<div class='FAQ-item'><p>"+index+". "+result.Question+"</p><p>"+result.Answer+"</p></div>");
+            index++;
+          });
+        }
+      })
+    }
+    FetchFAQ();
+  </script>
+{{end}}

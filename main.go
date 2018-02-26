@@ -50,6 +50,20 @@ type Subscriber struct {
 	Email string `db:Email`
 }
 
+type ContactUs struct {
+	Id      int64  `db:"Id"`
+	Name    string `db:"Name"`
+	Email   string `db:"Email"`
+	Phone   string `db:"Phone"`
+	Content string `db:"Content"`
+}
+
+type FAQ struct {
+	Id       int64  `db:"Id"`
+	Question string `db:"Question"`
+	Answer   string `db:"Answer"`
+}
+
 var db *sql.DB
 var dbmap *gorp.DbMap
 
@@ -66,12 +80,15 @@ func main() {
 	mux.HandleFunc("/search/", SearchPageHandler).Methods("GET")
 	mux.HandleFunc("/about/", AboutHandler).Methods("GET")
 	mux.HandleFunc("/contact/", ContactHandler).Methods("GET")
+	mux.HandleFunc("/FAQ/", FAQHandler).Methods("GET")
 	mux.HandleFunc("/manage/", ManageHandler).Methods("GET")
 	mux.HandleFunc("/list/", ListHandler).Methods("PUT")
 
 	mux.HandleFunc("/search/", SearchHandler).Methods("POST")
 	mux.HandleFunc("/product/", ProductHandler).Methods("POST")
 	mux.HandleFunc("/subscribe/", SubscribeHandler).Methods("POST")
+	mux.HandleFunc("/contact/", ContactUsHandler).Methods("POST")
+	mux.HandleFunc("/FAQ/", FAQDataHandler).Methods("POST")
 	//mux.HandleFunc("/order/", OrderHandler).Methods("POST")
 
 	// static file
@@ -85,6 +102,7 @@ func main() {
 	n := negroni.Classic()
 	n.Use(sessions.Sessions("wildview-session", cookiestore.New([]byte("my-secret-wildview"))))
 	n.Use(negroni.HandlerFunc(verifyUser))
+	n.Use(negroni.HandlerFunc(trafficCount))
 	n.UseHandler(mux)
 	n.Run(":80")
 }
@@ -120,6 +138,8 @@ func initDb() {
 	dbmap.AddTableWithName(Role{}, "roles").SetKeys(false, "username")
 	dbmap.AddTableWithName(Product{}, "products").SetKeys(true, "Id")
 	dbmap.AddTableWithName(Subscriber{}, "subscribers").SetKeys(true, "Id")
+	dbmap.AddTableWithName(ContactUs{}, "contactinfos").SetKeys(true, "Id")
+	dbmap.AddTableWithName(FAQ{}, "faqs").SetKeys(true, "Id")
 	err = dbmap.CreateTablesIfNotExists()
 	checkErr(err, "Create tables failed")
 
@@ -153,6 +173,18 @@ func initDBValues() {
 				err := dbmap.Insert(&roles[i])
 				checkErr(err, "Insertion of initial role fails!")
 			}
+		}
+	}
+	FAQs := []FAQ{
+		FAQ{0, "WILL MY CREDIT CARD BE CHARGED IMMEDIATELY?", "This is a fraud website on developing!"},
+		FAQ{0, "WHY DID YOU CALL OR E-MAIL ME TO VERIFY MY ORDER?", "Please stop now. Once you place your order, we will disappear and you will never reach us!"},
+		FAQ{0, "HOW DO I KNOW THAT MY ORDER HAS BEEN SHIPPED?", "Kidding me? Fraud website never ships goods!"},
+	}
+	for i := 0; i < len(FAQs); i++ {
+		var r = []FAQ{}
+		if _, _ = dbmap.Select(&r, "SELECT Id FROM faqs WHERE Question=?", FAQs[i].Question); len(r) == 0 {
+			err := dbmap.Insert(&FAQs[i])
+			checkErr(err, "Insertion of initial FAQs fails!")
 		}
 	}
 }
@@ -297,6 +329,24 @@ func ContactHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func FAQHandler(w http.ResponseWriter, r *http.Request) {
+	p := Page{Favourites: []Favourite{}, User: getStringFromSession(r, "User"), Content: ContentReturn{}}
+	if _, err := dbmap.Select(&p.Favourites, "select * from favourites"); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var tmpl *template.Template
+	if tmpl = VerifyAdminResponse(w, r, "templates/FAQ.html"); tmpl == nil {
+		tmpl, _ = template.New("").ParseFiles("templates/header.html",
+			"templates/footer.html",
+			"templates/FAQ.html",
+			"templates/base.html")
+	}
+	if err := tmpl.ExecuteTemplate(w, "base", p); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func ManageHandler(w http.ResponseWriter, r *http.Request) {
 	if !VerifyAdmin(w, r) {
 		http.Error(w, "You are in big trouble!", http.StatusInternalServerError)
@@ -393,6 +443,34 @@ func SubscribeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//PUT
+func ContactUsHandler(w http.ResponseWriter, r *http.Request) {
+	results := []ContentReturn{}
+	contactus := ContactUs{Id: 0, Name: r.FormValue("name"), Email: r.FormValue("email"), Phone: r.FormValue("phone"), Content: r.FormValue("content")}
+	err := dbmap.Insert(&contactus)
+	checkErr(err, "Insertion of initial products fails!")
+	results = append(results, ContentReturn{Error: "success"})
+	encoder := json.NewEncoder(w)
+	if err = encoder.Encode(results); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func FAQDataHandler(w http.ResponseWriter, r *http.Request) {
+	results := []FAQ{}
+	rows, err := dbmap.Query("select * from faqs")
+	checkErr(err, "Query db for products fails!")
+	for rows.Next() {
+		var faq FAQ
+		rows.Scan(&faq.Id, &faq.Question, &faq.Answer)
+		results = append(results, faq)
+	}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(results); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // Middleware Functions begin here
 func verifyUser(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	if r.URL.Path != "/login/" {
@@ -431,4 +509,8 @@ func VerifyAdminResponse(w http.ResponseWriter, r *http.Request, pageName string
 		return tmpl
 	}
 	return nil
+}
+
+func trafficCount(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	next(w, r)
 }

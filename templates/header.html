@@ -16,13 +16,14 @@
     </div>
     <div id="header-box">
       <div id="header-box-intro">
-        WildView Inc, Welcome to our offical website! Thanks for shopping!
+        Welcome!
       </div>
       <div id="header-box-user">
+        <span class="glyphicon glyphicon-shopping-cart"></span> &nbsp;&nbsp;&nbsp;&nbsp;
         {{if .}}
-          Hi, <b> {{.}} </b> <a href="/logout/"> (Log out) </a>
+          <span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;&nbsp;&nbsp;Hi, <b> {{.}} </b> <a href="/logout/"> (Log out) </a>
         {{else}}
-          <a href="/login/"> Log in </a>
+          <span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/login/"> Log in / Register </a>
         {{end}}
       </div>
     </div>
