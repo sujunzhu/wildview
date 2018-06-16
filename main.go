@@ -148,8 +148,11 @@ func initDb() {
 
 func initDBValues() {
 	products := []Product{
-		Product{0, "Dinasour Kid T-shirt Grey", "/img/0.jpg", 23.99, "WarmTip"},
-		Product{0, "39-Piece Tool Set", "/img/1.jpg", 59.99, "Tungsten"},
+		Product{0, "Dinasour Kid T-shirt Grey", "/img/0.jpg", 14.99, "WarmTip"},
+		Product{1, "39 Pcs Tool Set", "/img/1.jpg", 0.0, "SuperTool"},
+		Product{2, "54 Pcs Tool Set", "/img/2.jpg", 0.0, "SuperTool"},
+		Product{3, "59 Pcs Tool Set", "/img/3.jpg", 0.0, "SuperTool"},
+		Product{4, "148 Pcs Tool Set", "/img/4.jpg", 0.0, "SuperTool"},
 	}
 	for i := 0; i < len(products); i++ {
 		var r = []Product{}
